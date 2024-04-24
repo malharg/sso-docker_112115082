@@ -1,0 +1,33 @@
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27018:27017"
+    # restart: always
+    volumes:
+      - mongo_data:/data/db
+    # volumes:
+    #   - ./data:/data/db
+  messaging-service:
+    build: ./messaging-service
+    ports:
+      - "1337:1337"
+    depends_on: 
+      - mongodb
+    restart: on-failure
+    volumes:
+      - ./messaging-service:/srv/app/messaging-service
+    # command: npm run dev
+  streaming-service:
+    build: ./streaming-service
+    ports:
+      - "1557:1557"
+    depends_on:
+      - messaging-service
+    restart: on-failure
+    volumes:
+      - ./streaming-service:/srv/app/streaming-service
+      - ./messaging-service:/srv/app/messaging-service
+    # command: npm run dev
+volumes:
+  mongo_data: {}
